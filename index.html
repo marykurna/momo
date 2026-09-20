@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Calculator — Demo</title>
+<style>
+  :root{
+    --brand:#1e6df2;
+    --brand-dark:#0b5ad9;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+    --text:#0b1b2e;
+    --muted:#5b6b80;
+    --border:#dbe1ea;
+    --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .wrap{width:100%;max-width:520px}
+  .demo-banner{
+    background:#fff3cd;
+    color:#7a5b00;
+    border:1px solid #ffe08a;
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:0.85rem;
+    text-align:center;
+    margin-bottom:16px;
+    font-weight:600;
+  }
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:0 20px 40px -20px rgba(15,30,60,0.25), 0 4px 14px rgba(15,30,60,0.06);
+    padding:32px 28px;
+    border:1px solid #eef2f7;
+  }
+  h1{
+    font-size:1.5rem;
+    letter-spacing:-0.02em;
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .sub{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.9rem;
+    margin-bottom:26px;
+  }
+  .field{margin-bottom:22px}
+  .label-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.85rem;
+    color:var(--muted);
+    margin-bottom:10px;
+    font-weight:500;
+  }
+  .label-row .value{color:var(--brand);font-weight:700}
+  input[type=range]{
+    width:100%;
+    -webkit-appearance:none;
+    height:6px;
+    border-radius:6px;
+    outline:none;
+    cursor:pointer;
+    background:linear-gradient(
+      to right,
+      var(--brand) 0%,
+      var(--brand) var(--pct,20%),
+      #e3e9f2 var(--pct,20%),
+      #e3e9f2 100%
+    );
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:22px;height:22px;border-radius:50%;
+    background:#fff;border:3px solid var(--brand);
+    box-shadow:0 2px 8px rgba(30,109,242,0.4);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px;height:22px;border-radius:50%;
+    background:#fff;border:3px solid var(--brand);
+    box-shadow:0 2px 8px rgba(30,109,242,0.4);
+    cursor:pointer;
+  }
+  .ends{
+    display:flex;justify-content:space-between;
+    font-size:0.75rem;color:var(--muted);
+    margin-top:6px;
+  }
+  .result{
+    background:linear-gradient(135deg,#eef4ff,#f8fbff);
+    border:1px solid #dbe7fb;
+    border-radius:16px;
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:8px;
+  }
+  .result .lbl{font-size:0.85rem;color:var(--muted);font-weight:500}
+  .result .amt{font-size:1.6rem;font-weight:700;color:var(--brand)}
+  footer{
+    text-align:center;
+    font-size:0.75rem;
+    color:#8a97a8;
+    margin-top:20px;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="demo-banner">⚠️ DEMO ONLY — No real loans, no data collection, no sign-in</div>
+
+  <div class="card">
+    <h1>Loan Calculator</h1>
+    <p class="sub">Estimate your monthly payment. This is a demo.</p>
+
+    <div class="field">
+      <div class="label-row">
+        <span>Loan amount</span>
+        <span class="value" id="amtOut">$1,000,000</span>
+      </div>
+      <input type="range" id="amt" min="100000" max="5000000" step="100000" value="1000000">
+      <div class="ends"><span>$100,000</span><span>$5,000,000</span></div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <span>Term</span>
+        <span class="value" id="termOut">48 months</span>
+      </div>
+      <input type="range" id="term" min="6" max="84" step="6" value="48">
+      <div class="ends"><span>6 mo</span><span>84 mo</span></div>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <span>Interest rate (APR)</span>
+        <span class="value" id="rateOut">8.5%</span>
+      </div>
+      <input type="range" id="rate" min="1" max="25" step="0.5" value="8.5">
+      <div class="ends"><span>1%</span><span>25%</span></div>
+    </div>
+
+    <div class="result">
+      <span class="lbl">Estimated monthly payment</span>
+      <span class="amt" id="monthly">$0</span>
+    </div>
+
+    <footer>
+      Educational demo. Not a financial service.<br>
+      No information is submitted, stored, or transmitted.
+    </footer>
+  </div>
+</div>
+
+<script>
+  const fmt = n => "$" + Math.round(n).toLocaleString("en-US");
+  const amt = document.getElementById("amt");
+  const term = document.getElementById("term");
+  const rate = document.getElementById("rate");
+  const amtOut = document.getElementById("amtOut");
+  const termOut = document.getElementById("termOut");
+  const rateOut = document.getElementById("rateOut");
+  const monthly = document.getElementById("monthly");
+
+  function paint(el){
+    const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+    el.style.setProperty("--pct", pct + "%");
+  }
+
+  function calc(){
+    const P = Number(amt.value);
+    const n = Number(term.value);
+    const r = Number(rate.value) / 100 / 12;
+
+    let m;
+    if (r === 0) m = P / n;
+    else m = P * r / (1 - Math.pow(1 + r, -n));
+
+    amtOut.textContent = fmt(P);
+    termOut.textContent = n + " months";
+    rateOut.textContent = Number(rate.value).toFixed(1) + "%";
+    monthly.textContent = fmt(m);
+
+    paint(amt); paint(term); paint(rate);
+  }
+
+  [amt, term, rate].forEach(el => el.addEventListener("input", calc));
+  calc();
+</script>
+</body>
+</html>
